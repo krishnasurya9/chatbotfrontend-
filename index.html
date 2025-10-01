@@ -11,7 +11,6 @@
         
         body {
             font-family: 'JetBrains Mono', monospace;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         }
         
         @keyframes bounce {
@@ -25,29 +24,19 @@
             50% { opacity: .5; }
         }
         
-        .code-block {
-            background: #1e293b;
-            border-left: 3px solid #3b82f6;
-        }
-        
         .debug-panel { 
             max-height: 500px; 
             overflow-y: auto;
-            background: #0f172a;
         }
         
         .log-entry { 
-            border-left: 3px solid #334155;
+            border-left: 3px solid #e5e7eb;
             font-size: 0.75rem;
         }
         .log-entry.info { border-left-color: #3b82f6; }
         .log-entry.success { border-left-color: #10b981; }
         .log-entry.warning { border-left-color: #f59e0b; }
         .log-entry.error { border-left-color: #ef4444; }
-        
-        .terminal-header {
-            background: linear-gradient(90deg, #1e293b 0%, #334155 100%);
-        }
         
         .status-dot {
             animation: pulse 2s ease-in-out infinite;
@@ -56,54 +45,36 @@
         pre code {
             font-family: 'JetBrains Mono', monospace;
         }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen bg-gray-50">
     <!-- Header -->
-    <div class="bg-slate-900 border-b border-slate-700 shadow-lg">
+    <div class="bg-white border-b border-gray-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                     <span class="text-white font-bold text-lg">&lt;/&gt;</span>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-white">Coding Assistant</h1>
-                    <p class="text-xs text-blue-400">Debug Console v1.0 • Gemini 2.0 Flash</p>
+                    <h1 class="text-xl font-semibold text-gray-900">Coding Assistant</h1>
+                    <p class="text-sm text-gray-500">Debug Console • Gemini 2.0 Flash</p>
                 </div>
             </div>
             <div class="flex items-center space-x-4">
                 <!-- Connection Status -->
-                <div class="text-sm flex items-center space-x-2 bg-slate-800 px-3 py-2 rounded-lg">
-                    <span class="text-slate-400">Status:</span>
+                <div class="text-sm flex items-center space-x-2">
+                    <span class="text-gray-600">Status:</span>
                     <div class="flex items-center space-x-1">
-                        <div id="statusIndicator" class="w-2 h-2 bg-red-500 rounded-full status-dot"></div>
-                        <span id="connectionStatus" class="text-red-400 font-medium">Offline</span>
+                        <div id="statusIndicator" class="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span id="connectionStatus" class="text-red-600 font-medium">Disconnected</span>
                     </div>
                 </div>
                 <!-- Controls -->
-                <button id="testConnection" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-500/50">
-                    🔌 Test Backend
+                <button id="testConnection" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    Test Connection
                 </button>
-                <button id="toggleDebug" class="px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-all">
-                    📊 Debug
+                <button id="toggleDebug" class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                    Debug Panel
                 </button>
             </div>
         </div>
@@ -111,16 +82,16 @@
 
     <div class="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 h-screen">
         <!-- Main Chat Area -->
-        <div id="chatArea" class="lg:col-span-4 flex flex-col bg-slate-800 rounded-lg shadow-2xl border border-slate-700">
-            <!-- Terminal Header -->
-            <div class="terminal-header p-4 border-b border-slate-700 flex justify-between items-center">
+        <div id="chatArea" class="lg:col-span-4 flex flex-col bg-white rounded-lg shadow border">
+            <!-- Chat Controls -->
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-2">
                         <div id="chatStatusDot" class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span class="text-sm font-medium text-green-400">● READY</span>
+                        <span class="text-sm font-medium text-gray-700">Chat Active</span>
                     </div>
-                    <div class="text-xs text-slate-400 bg-slate-900 px-2 py-1 rounded">
-                        Messages: <span id="messageCount" class="text-blue-400 font-bold">0</span>
+                    <div class="text-sm text-gray-500">
+                        Messages: <span id="messageCount">0</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -129,66 +100,66 @@
                         id="backendUrl" 
                         placeholder="Backend URL" 
                         value="https://chatbot-iejv.onrender.com"
-                        class="px-3 py-1 text-xs bg-slate-900 text-slate-300 border border-slate-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+                        class="px-3 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
                     >
-                    <button id="clearChat" class="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
-                        🗑️ Clear
+                    <button id="clearChat" class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                        Clear Chat
                     </button>
                 </div>
             </div>
 
             <!-- Messages Container -->
-            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900">
-                <div id="welcomeMessage" class="text-center py-16">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                        <span class="text-4xl">&lt;/&gt;</span>
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div id="welcomeMessage" class="text-center py-12">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-3xl">&lt;/&gt;</span>
                     </div>
-                    <h3 class="text-2xl font-bold text-white mb-2">Coding Assistant Ready</h3>
-                    <p class="text-slate-400 mb-4">Ask me anything about programming, debugging, or code generation.</p>
-                    <div class="flex flex-wrap justify-center gap-2 text-xs">
-                        <span class="bg-slate-800 text-blue-400 px-3 py-1 rounded-full">Python</span>
-                        <span class="bg-slate-800 text-green-400 px-3 py-1 rounded-full">JavaScript</span>
-                        <span class="bg-slate-800 text-yellow-400 px-3 py-1 rounded-full">APIs</span>
-                        <span class="bg-slate-800 text-purple-400 px-3 py-1 rounded-full">Debugging</span>
-                        <span class="bg-slate-800 text-pink-400 px-3 py-1 rounded-full">Code Review</span>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Welcome to Coding Assistant</h3>
+                    <p class="text-gray-600">Ask me anything about programming, debugging, or code generation.</p>
+                    <div class="flex flex-wrap justify-center gap-2 text-xs mt-4">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">Python</span>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded">JavaScript</span>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">APIs</span>
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">Debugging</span>
+                        <span class="bg-pink-100 text-pink-800 px-2 py-1 rounded">Code Review</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-4">🔍 Debug mode enabled | Powered by Gemini 2.0 Flash</p>
+                    <p class="text-sm text-gray-500 mt-2">Debug features are enabled for development.</p>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <div class="p-4 border-t border-slate-700 bg-slate-800">
+            <div class="p-4 border-t bg-gray-50">
                 <div class="flex space-x-3">
                     <div class="flex-1">
                         <textarea 
                             id="messageInput" 
-                            placeholder="// Ask about code, request examples, or get debugging help..." 
-                            class="w-full p-3 bg-slate-900 text-slate-200 border border-slate-600 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500"
+                            placeholder="Type your coding question here..." 
+                            class="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             rows="2"
                         ></textarea>
                     </div>
                     <button 
                         id="sendButton" 
-                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-blue-500/50 flex items-center justify-center font-bold"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
                     >
-                        <span class="mr-2">Run</span>
-                        <span>▶</span>
+                        <span class="mr-2">Send</span>
+                        <span>→</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Debug Panel -->
-        <div id="debugPanel" class="hidden lg:col-span-1 bg-slate-800 rounded-lg shadow-2xl border border-slate-700 flex flex-col">
+        <div id="debugPanel" class="hidden lg:col-span-1 bg-white rounded-lg shadow border flex flex-col">
             <!-- Debug Header -->
-            <div class="terminal-header p-4 border-b border-slate-700 flex justify-between items-center">
-                <h3 class="font-bold text-white flex items-center text-sm">
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                <h3 class="font-semibold text-gray-900 flex items-center">
                     <span class="mr-2">🔍</span>
-                    SYSTEM LOGS
+                    Debug Logs
                 </h3>
                 <div class="flex items-center space-x-2">
-                    <span class="text-xs text-slate-400">(<span id="debugLogCount" class="text-blue-400">0</span>)</span>
-                    <button id="clearDebugLogs" class="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                    <span class="text-xs text-gray-500">(<span id="debugLogCount">0</span>)</span>
+                    <button id="clearDebugLogs" class="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                         Clear
                     </button>
                 </div>
@@ -196,27 +167,27 @@
 
             <!-- Debug Content -->
             <div id="debugContent" class="flex-1 overflow-y-auto p-3 debug-panel">
-                <div id="noDebugLogs" class="text-center text-slate-500 py-8">
-                    <div class="text-3xl mb-2">📊</div>
-                    <p class="text-sm">No logs captured</p>
-                    <p class="text-xs text-slate-600 mt-1">Start debugging to see output</p>
+                <div id="noDebugLogs" class="text-center text-gray-500 py-8">
+                    <div class="text-2xl mb-2">📊</div>
+                    <p class="text-sm">No debug logs yet</p>
+                    <p class="text-xs text-gray-400 mt-1">Interact to see logs</p>
                 </div>
             </div>
 
             <!-- Debug Controls -->
-            <div class="p-3 border-t border-slate-700 bg-slate-900">
+            <div class="p-3 border-t bg-gray-50">
                 <div class="space-y-2">
                     <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="autoScroll" checked class="rounded bg-slate-700 border-slate-600">
-                        <label for="autoScroll" class="text-xs text-slate-300">Auto-scroll</label>
+                        <input type="checkbox" id="autoScroll" checked class="rounded">
+                        <label for="autoScroll" class="text-xs text-gray-700">Auto-scroll</label>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="detailedLogs" checked class="rounded bg-slate-700 border-slate-600">
-                        <label for="detailedLogs" class="text-xs text-slate-300">Detailed logs</label>
+                        <input type="checkbox" id="detailedLogs" checked class="rounded">
+                        <label for="detailedLogs" class="text-xs text-gray-700">Detailed logs</label>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="timestampLogs" checked class="rounded bg-slate-700 border-slate-600">
-                        <label for="timestampLogs" class="text-xs text-slate-300">Timestamps</label>
+                        <input type="checkbox" id="timestampLogs" checked class="rounded">
+                        <label for="timestampLogs" class="text-xs text-gray-700">Timestamps</label>
                     </div>
                 </div>
             </div>
@@ -290,21 +261,21 @@
                 const showDetailed = detailedLogsCheckbox.checked;
                 
                 return `
-                    <div class="log-entry ${log.level} p-2 mb-2 rounded bg-slate-800">
+                    <div class="log-entry ${log.level} p-2 mb-2 rounded-lg bg-gray-50">
                         <div class="flex items-start justify-between">
                             <div class="flex-1">
                                 <div class="flex items-center space-x-2 mb-1">
-                                    <span class="log-level-badge px-1 py-0 text-xs font-bold rounded ${getLevelBadgeClass(log.level)}">
+                                    <span class="log-level-badge px-1 py-0 text-xs font-medium rounded ${getLevelBadgeClass(log.level)}">
                                         ${log.level.toUpperCase()}
                                     </span>
-                                    ${log.stage ? `<span class="text-xs text-slate-400 bg-slate-900 px-1 rounded">${log.stage}</span>` : ''}
-                                    ${showTimestamp ? `<span class="text-xs text-slate-500">${new Date(log.timestamp).toLocaleTimeString()}</span>` : ''}
+                                    ${log.stage ? `<span class="text-xs text-gray-600 bg-gray-200 px-1 rounded">${log.stage}</span>` : ''}
+                                    ${showTimestamp ? `<span class="text-xs text-gray-500">${new Date(log.timestamp).toLocaleTimeString()}</span>` : ''}
                                 </div>
-                                <div class="text-xs text-slate-300">${log.message}</div>
+                                <div class="text-sm text-gray-800">${log.message}</div>
                                 ${showDetailed && log.data ? `
                                     <details class="mt-1">
-                                        <summary class="text-xs text-slate-400 cursor-pointer hover:text-slate-300">View data</summary>
-                                        <pre class="text-xs bg-slate-900 p-2 mt-1 rounded overflow-x-auto text-slate-400">${log.data}</pre>
+                                        <summary class="text-xs text-gray-600 cursor-pointer hover:text-gray-800">Show data</summary>
+                                        <pre class="text-xs bg-gray-100 p-2 mt-1 rounded overflow-x-auto text-gray-700">${log.data}</pre>
                                     </details>
                                 ` : ''}
                             </div>
@@ -322,37 +293,36 @@
 
         function getLevelBadgeClass(level) {
             switch (level) {
-                case 'error': return 'bg-red-900 text-red-200';
-                case 'warning': return 'bg-yellow-900 text-yellow-200';
-                case 'success': return 'bg-green-900 text-green-200';
-                case 'info': return 'bg-blue-900 text-blue-200';
-                default: return 'bg-slate-700 text-slate-300';
+                case 'error': return 'bg-red-100 text-red-800';
+                case 'warning': return 'bg-yellow-100 text-yellow-800';
+                case 'success': return 'bg-green-100 text-green-800';
+                case 'info': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
             }
         }
 
         // Connection Management
         function updateConnectionStatus(status) {
             connectionStatus = status;
-            const statusText = status.charAt(0).toUpperCase() + status.slice(1);
-            connectionStatusSpan.textContent = statusText;
+            connectionStatusSpan.textContent = status.charAt(0).toUpperCase() + status.slice(1);
             
-            statusIndicator.className = `w-2 h-2 rounded-full status-dot ${
+            statusIndicator.className = `w-2 h-2 rounded-full ${
                 status === 'connected' ? 'bg-green-500' : 
                 status === 'testing' ? 'bg-yellow-500' : 'bg-red-500'
             }`;
             
             connectionStatusSpan.className = `font-medium ${
-                status === 'connected' ? 'text-green-400' : 
-                status === 'testing' ? 'text-yellow-400' : 'text-red-400'
+                status === 'connected' ? 'text-green-600' : 
+                status === 'testing' ? 'text-yellow-600' : 'text-red-600'
             }`;
             
-            addDebugLog('info', `Connection status: ${statusText}`, null, 'connection');
+            addDebugLog('info', `Connection status updated: ${status}`, null, 'connection');
         }
 
         async function testConnection() {
-            addDebugLog('info', 'Testing backend connection', { url: backendUrlInput.value }, 'connection');
+            addDebugLog('info', 'Starting connection test', { url: backendUrlInput.value }, 'connection');
             updateConnectionStatus('testing');
-            testConnectionButton.textContent = '⏳ Testing...';
+            testConnectionButton.textContent = 'Testing...';
             testConnectionButton.disabled = true;
             
             try {
@@ -367,7 +337,7 @@
                 
                 for (const endpoint of endpoints) {
                     try {
-                        addDebugLog('info', `Probing: ${endpoint}`, null, 'connection');
+                        addDebugLog('info', `Testing endpoint: ${endpoint}`, null, 'connection');
                         
                         const controller = new AbortController();
                         const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -380,33 +350,38 @@
                         
                         clearTimeout(timeoutId);
                         
+                        addDebugLog('info', `Response from ${endpoint}`, {
+                            status: response.status,
+                            statusText: response.statusText
+                        }, 'connection');
+                        
                         if (response.ok) {
                             const responseData = await response.text();
-                            addDebugLog('success', `✓ Connected via: ${endpoint}`, { responseData }, 'connection');
+                            addDebugLog('success', `Connected via: ${endpoint}`, { responseData }, 'connection');
                             connected = true;
                             break;
                         } else {
-                            lastError = `HTTP ${response.status}`;
-                            addDebugLog('warning', `✗ Failed: ${endpoint}`, { error: lastError }, 'connection');
+                            lastError = `HTTP ${response.status}: ${response.statusText}`;
+                            addDebugLog('warning', `Endpoint failed: ${endpoint}`, { error: lastError }, 'connection');
                         }
                     } catch (error) {
                         lastError = error.message;
-                        addDebugLog('warning', `✗ Error: ${endpoint}`, { error: error.message }, 'connection');
+                        addDebugLog('warning', `Endpoint error: ${endpoint}`, { error: error.message }, 'connection');
                     }
                 }
                 
                 if (connected) {
                     updateConnectionStatus('connected');
-                    addDebugLog('success', '✓ Backend online', null, 'connection');
+                    addDebugLog('success', 'Backend connection successful', null, 'connection');
                 } else {
                     throw new Error(lastError || 'All endpoints failed');
                 }
                 
             } catch (error) {
                 updateConnectionStatus('disconnected');
-                addDebugLog('error', `✗ Connection failed: ${error.message}`, { error }, 'connection');
+                addDebugLog('error', `Connection test failed: ${error.message}`, { error }, 'connection');
             } finally {
-                testConnectionButton.textContent = '🔌 Test Backend';
+                testConnectionButton.textContent = 'Test Connection';
                 testConnectionButton.disabled = false;
             }
         }
@@ -421,7 +396,7 @@
             const message = { role, content, timestamp, isError };
             messages.push(message);
             
-            addDebugLog('info', `Message: ${role}`, { content: content.substring(0, 100) }, 'chat');
+            addDebugLog('info', `Message added: ${role}`, { content, timestamp }, 'messages');
             updateMessageCount();
             
             if (messages.length === 1) {
@@ -432,15 +407,15 @@
             messageElement.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
             
             const bubbleClass = role === 'user' 
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                ? 'bg-blue-600 text-white'
                 : isError 
-                    ? 'bg-red-900 text-red-200 border border-red-700'
-                    : 'bg-slate-800 text-slate-200 border border-slate-700';
+                    ? 'bg-red-100 text-red-800 border border-red-200'
+                    : 'bg-gray-100 text-gray-900 border border-gray-200';
             
             messageElement.innerHTML = `
-                <div class="max-w-[75%] p-4 rounded-lg ${bubbleClass} shadow-lg">
-                    <div class="whitespace-pre-wrap text-sm">${content}</div>
-                    <div class="text-xs opacity-70 mt-2">
+                <div class="max-w-[75%] p-3 rounded-lg ${bubbleClass}">
+                    <div class="whitespace-pre-wrap">${content}</div>
+                    <div class="text-xs opacity-70 mt-1">
                         ${new Date(timestamp).toLocaleTimeString()}
                     </div>
                 </div>
@@ -455,14 +430,14 @@
             loadingElement.id = 'loadingIndicator';
             loadingElement.className = 'flex justify-start';
             loadingElement.innerHTML = `
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-lg shadow-lg">
-                    <div class="flex items-center space-x-3">
+                <div class="bg-gray-100 border border-gray-200 p-3 rounded-lg">
+                    <div class="flex items-center space-x-2">
                         <div class="flex space-x-1">
-                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                         </div>
-                        <span class="text-sm text-slate-400">Processing code...</span>
+                        <span class="text-sm text-gray-600">Coding Assistant is thinking...</span>
                     </div>
                 </div>
             `;
@@ -479,13 +454,15 @@
 
         // Backend Communication
         async function sendMessageToBackend(userMessage) {
-            addDebugLog('info', 'Sending to backend', { message: userMessage }, 'api');
+            addDebugLog('info', 'Starting backend communication', { message: userMessage, endpoint: backendUrlInput.value }, 'api');
             
             try {
                 const requestData = {
                     message: userMessage,
                     session_id: 'default_session'
                 };
+                
+                addDebugLog('info', 'Sending POST request', { url: `${backendUrlInput.value}/api/chat`, data: requestData }, 'api');
                 
                 const response = await fetch(`${backendUrlInput.value}/api/chat`, {
                     method: 'POST',
@@ -496,7 +473,7 @@
                     body: JSON.stringify(requestData)
                 });
                 
-                addDebugLog('info', 'Response received', {
+                addDebugLog('info', 'Received response', {
                     status: response.status,
                     statusText: response.statusText
                 }, 'api');
@@ -506,12 +483,12 @@
                 }
                 
                 const responseData = await response.json();
-                addDebugLog('success', 'Response parsed', responseData, 'api');
+                addDebugLog('success', 'Backend response parsed', responseData, 'api');
                 
-                return responseData.response || responseData.message || 'No response';
+                return responseData.response || responseData.message || responseData.content || 'No response content received';
                 
             } catch (error) {
-                addDebugLog('error', `Backend error: ${error.message}`, { error }, 'api');
+                addDebugLog('error', `Backend communication failed: ${error.message}`, { error }, 'api');
                 throw error;
             }
         }
@@ -521,7 +498,7 @@
             const userMessage = messageInput.value.trim();
             if (!userMessage || isLoading) return;
             
-            addDebugLog('info', 'Executing query', { message: userMessage }, 'chat');
+            addDebugLog('info', 'Send message initiated', { message: userMessage }, 'chat');
             
             messageInput.value = '';
             isLoading = true;
@@ -536,13 +513,13 @@
                 
                 hideLoadingIndicator();
                 addMessage('assistant', botResponse);
-                addDebugLog('success', 'Query completed', null, 'chat');
+                addDebugLog('success', 'Message exchange completed', { userMessage, botResponse }, 'chat');
                 
             } catch (error) {
                 hideLoadingIndicator();
-                addDebugLog('error', `Query failed: ${error.message}`, { error }, 'chat');
+                addDebugLog('error', `Message sending failed: ${error.message}`, { error }, 'chat');
                 
-                const errorMessage = `Error: Failed to process request.\n${error.message}`;
+                const errorMessage = `Sorry, I couldn't process your message. Error: ${error.message}`;
                 addMessage('assistant', errorMessage, true);
             } finally {
                 isLoading = false;
@@ -568,20 +545,20 @@
             welcomeMessage.style.display = 'block';
             messagesContainer.appendChild(welcomeMessage);
             updateMessageCount();
-            addDebugLog('info', 'Chat cleared', null, 'chat');
+            addDebugLog('info', 'Chat cleared by user', null, 'chat');
         });
 
         toggleDebugButton.addEventListener('click', () => {
             showDebugPanel = !showDebugPanel;
             if (showDebugPanel) {
                 debugPanel.classList.remove('hidden');
-                chatArea.className = 'lg:col-span-3 flex flex-col bg-slate-800 rounded-lg shadow-2xl border border-slate-700';
-                toggleDebugButton.textContent = '✕ Debug';
+                chatArea.className = 'lg:col-span-3 flex flex-col bg-white rounded-lg shadow border';
+                toggleDebugButton.textContent = 'Hide Debug';
                 addDebugLog('info', 'Debug panel opened', null, 'ui');
             } else {
                 debugPanel.classList.add('hidden');
-                chatArea.className = 'lg:col-span-4 flex flex-col bg-slate-800 rounded-lg shadow-2xl border border-slate-700';
-                toggleDebugButton.textContent = '📊 Debug';
+                chatArea.className = 'lg:col-span-4 flex flex-col bg-white rounded-lg shadow border';
+                toggleDebugButton.textContent = 'Debug Panel';
                 addDebugLog('info', 'Debug panel closed', null, 'ui');
             }
         });
@@ -589,20 +566,30 @@
         clearDebugLogsButton.addEventListener('click', () => {
             debugLogs = [];
             updateDebugDisplay();
-            addDebugLog('info', 'Logs cleared', null, 'debug');
+            addDebugLog('info', 'Debug logs cleared', null, 'debug');
         });
 
         testConnectionButton.addEventListener('click', testConnection);
 
-        autoScrollCheckbox.addEventListener('change', updateDebugDisplay);
-        detailedLogsCheckbox.addEventListener('change', updateDebugDisplay);
-        timestampLogsCheckbox.addEventListener('change', updateDebugDisplay);
+        autoScrollCheckbox.addEventListener('change', () => {
+            addDebugLog('info', `Auto-scroll ${autoScrollCheckbox.checked ? 'enabled' : 'disabled'}`, null, 'ui');
+        });
+
+        detailedLogsCheckbox.addEventListener('change', () => {
+            addDebugLog('info', `Detailed logs ${detailedLogsCheckbox.checked ? 'enabled' : 'disabled'}`, null, 'ui');
+            updateDebugDisplay();
+        });
+
+        timestampLogsCheckbox.addEventListener('change', () => {
+            addDebugLog('info', `Timestamps ${timestampLogsCheckbox.checked ? 'enabled' : 'disabled'}`, null, 'ui');
+            updateDebugDisplay();
+        });
 
         // Initialize
-        addDebugLog('info', 'Coding Assistant initialized', {
+        addDebugLog('info', 'Coding Assistant application initialized', {
             timestamp: new Date().toISOString(),
-            model: 'Gemini 2.0 Flash',
-            mode: 'Debug Console'
+            userAgent: navigator.userAgent,
+            url: window.location.href
         }, 'system');
         
         updateConnectionStatus('disconnected');
